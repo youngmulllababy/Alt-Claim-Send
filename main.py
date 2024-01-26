@@ -14,7 +14,7 @@ from typing import Union
 import telebot
 
 from settings import ALTLAYER_CLAIM_CONTRACT, ETH_RPC, MAX_GWEI, ALTLAYER_TOKEN_CONTRACT, SLEEP_BETWEEN_ACCOUNTS, \
-    STR_DONE, STR_CANCEL, TG_TOKEN, TG_ID
+    STR_DONE, STR_CANCEL, TG_TOKEN, TG_ID, SLEEP_BETWEEN_ACTIONS
 
 
 def decimal_to_int(qty, decimal):
@@ -134,6 +134,10 @@ def claim():
             if status == 1:
                 logger.success(f'https://etherscan.io/tx/{tx_hash.hex()}')
                 tg_messages.append(f'{STR_DONE} {module_str}\nhttps://etherscan.io/tx/{tx_hash.hex()}')
+
+                logger.info('sleeping before transfer...')
+                time.sleep(random.randint(*SLEEP_BETWEEN_ACTIONS))
+
                 logger.info(f'will now transfer to specified recipient address - {recipient}')
                 transfer(account, recipient, amount, tg_messages)
             else:
@@ -143,6 +147,8 @@ def claim():
             tg_messages.append(f'{STR_CANCEL}{module_str} | {e}')
 
         send_msg(tg_messages)
+
+        logger.info('sleeping before next account...')
         time.sleep(random.randint(*SLEEP_BETWEEN_ACCOUNTS))
 
 def send_msg(messages):
